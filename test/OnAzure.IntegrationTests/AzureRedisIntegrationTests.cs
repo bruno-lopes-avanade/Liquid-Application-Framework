@@ -4,19 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using FluentValidation;
+using Liquid.Repository;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Liquid.OnAzure.Tests
+namespace Liquid.OnAzure.IntegrationTests
 {
-    public class AzureRedisTests : IClassFixture<EntityUnderTeste>
+    public class AzureRedisIntegrationTests : IClassFixture<EntityUnderTeste>
     {
         private const string DefaultConnectionString = "liquid.redis.cache.windows.net:6380,password=8SGTpwkAuEzaTOKZj2BU9Lk9DALtV2LWbrA19gYPGAI=,ssl=True,abortConnect=False";
         private static readonly IFixture _fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
@@ -25,7 +25,7 @@ namespace Liquid.OnAzure.Tests
 
         private readonly AzureRedis _sut;
 
-        public AzureRedisTests(EntityUnderTeste entity, ITestOutputHelper output)
+        public AzureRedisIntegrationTests(EntityUnderTeste entity, ITestOutputHelper output)
         {
             _output = output;
             Workbench.Instance.Reset();
@@ -114,6 +114,25 @@ namespace Liquid.OnAzure.Tests
         public int GetHashCode(T parameterValue)
         {
             return Tuple.Create(parameterValue).GetHashCode();
+        }
+    }
+
+    public class EntityUnderTeste : LightModel<EntityUnderTeste>
+    {
+        /// <summary>
+        /// Identifies entity car
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Describes the entity object
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <inheritdoc/>
+        public override void Validate()
+        {
+            RuleFor(i => i.Description).NotEmpty().WithErrorCode("DESCRIPTION_MUSTNOT_BE_EMPTY");
         }
     }
 }

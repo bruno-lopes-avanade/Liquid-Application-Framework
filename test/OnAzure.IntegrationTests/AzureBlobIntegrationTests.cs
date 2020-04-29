@@ -1,4 +1,4 @@
-// Copyright (c) Avanade Inc. All rights reserved.
+﻿// Copyright (c) Avanade Inc. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -18,9 +18,9 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using NSubstitute;
 using Xunit;
 
-namespace Liquid.OnAzure.Tests
+namespace Liquid.OnAzure.IntegrationTests
 {
-    public class AzureBlobTests : IDisposable
+    public class AzureBlobIntegrationTests : IDisposable
     {
         private const string ContentType = "text/plain";
         private const string DefaultConnectionString = "UseDevelopmentStorage=true";
@@ -37,7 +37,7 @@ namespace Liquid.OnAzure.Tests
 
         private readonly AzureBlob _sut;
 
-        public AzureBlobTests()
+        public AzureBlobIntegrationTests()
         {
             Workbench.Instance.Reset();
 

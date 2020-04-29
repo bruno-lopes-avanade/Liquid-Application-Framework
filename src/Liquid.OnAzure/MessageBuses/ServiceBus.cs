@@ -22,7 +22,7 @@ namespace Liquid.OnAzure
 
         public ServiceBus(ServiceBusConfiguration serviceBusConfiguration)
         {
-            
+            _serviceBusConfiguration = serviceBusConfiguration;
         }
 
         public ServiceBus()
@@ -51,6 +51,10 @@ namespace Liquid.OnAzure
             MethodInfo method = item.Key;
             string connectionKey = GetKeyConnection(method);
             ServiceBusConfiguration config = null;
+            
+            if (!string.IsNullOrEmpty(_serviceBusConfiguration?.ConnectionString))
+                return _serviceBusConfiguration.ConnectionString;
+
             if (string.IsNullOrEmpty(connectionKey)) // Load specific settings if provided
             {
                 config = LightConfigurator.Config<ServiceBusConfiguration>($"{nameof(ServiceBus)}");

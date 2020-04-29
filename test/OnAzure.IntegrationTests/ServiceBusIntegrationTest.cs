@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Liquid.Activation;
 using Xunit;
 
-namespace Liquid.OnAzure.Tests
+namespace Liquid.OnAzure.IntegrationTests
 {
-    public class ServiceBusTest
+    public class ServiceBusIntegrationTest
     {
         private ServiceBus _sut;
-        public ServiceBusTest()
+        public ServiceBusIntegrationTest()
         {
             //Workbench.Instance.Configuration["ServiceBus"] = "Endpoint=sb://liquid-sample.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=bFsoGSUAK5/mKzpk4NOEhTA0n9blvApF8TTCJN23yP0=";
             _sut = new ServiceBus(new ServiceBusConfiguration
@@ -25,4 +21,9 @@ namespace Liquid.OnAzure.Tests
             Assert.ThrowsAny<Exception>(() => _sut.ProcessQueue());
         }
     }
+
+    public class MessageBusUnderTest
+    {
+    }
+
 }
