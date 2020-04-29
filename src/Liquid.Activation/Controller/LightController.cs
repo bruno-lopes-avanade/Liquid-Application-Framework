@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection;
 using System.Text.Encodings.Web;
@@ -16,6 +17,7 @@ namespace Liquid.Activation
      /// This Controller and its action method handles incoming browser requests, 
      /// retrieves necessary model data and returns appropriate responses.
      /// </summary>
+    [ExcludeFromCodeCoverage]
     public abstract class LightController : Controller
     {
         protected LightContext _context;

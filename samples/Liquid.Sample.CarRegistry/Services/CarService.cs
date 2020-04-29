@@ -83,7 +83,7 @@ namespace Liquid.Sample.CarRegistry
 
             var records = await Repository.AddOrUpdateAsync(car).ConfigureAwait(true);
             await Cache.SetAsync(car.id, car).ConfigureAwait(false);
-            return Response(new DomainResponse{ ModelData = records, StatusCode = (int)HttpStatusCode.NoContent });
+            return Response(records);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Liquid.Sample.CarRegistry
             Telemetry.TrackEvent("Delete Record");
             await Repository.DeleteAsync<Car>(id.ToString()).ConfigureAwait(true);
             await Cache.RemoveAsync(id.ToString()).ConfigureAwait(false);
-            return Response(new DomainResponse{StatusCode = (int)HttpStatusCode.NoContent});
+            return Response(new DomainResponse());
         }
     }
 }
