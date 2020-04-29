@@ -81,10 +81,10 @@ namespace Liquid.Activation
 
             if (response.BadRequestMessage) return BadRequest(response);
 
-            if (response.GenericReturnMessage) return StatusCode((int)response.StatusCode, response);
-
             if (response.StatusCode.Equals((int)HttpStatusCode.NoContent))
                 return StatusCode((int)response?.StatusCode);
+
+            if (response.GenericReturnMessage) return StatusCode((int)response.StatusCode, response);
 
             return Ok(response);            
         }
