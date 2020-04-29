@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Liquid.Interfaces;
 using Liquid.Tests;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using Xunit;
@@ -17,9 +20,12 @@ namespace Liquid.Base.Tests
 {
     public class WorkbenchTests
     {
-        public WorkbenchTests()
+        private readonly IDistributedCache _memoryCache;
+
+        public WorkbenchTests(IDistributedCache memoryCache)
         {
             Workbench.Instance.Reset();
+            _memoryCache = memoryCache;
         }
 
         [Fact]
@@ -80,7 +86,8 @@ namespace Liquid.Base.Tests
         }
 
         [Theory, AutoSubstituteData]
-        public void GetRegisteredServiceReturnsWhatWasAddedByAddToCache(WorkbenchServiceType type, IWorkbenchService service)
+        public void GetRegisteredServiceReturnsWhatWasAddedByAddToCache(WorkbenchServiceType type,
+            IWorkbenchService service)
         {
             Workbench.Instance.AddToCache(type, service);
 
@@ -88,7 +95,8 @@ namespace Liquid.Base.Tests
         }
 
         [Theory, AutoSubstituteData]
-        public void AddToCacheSameServiceTypeTwiceThrows(WorkbenchServiceType type, IWorkbenchService service1, IWorkbenchService service2)
+        public void AddToCacheSameServiceTypeTwiceThrows(WorkbenchServiceType type, IWorkbenchService service1,
+            IWorkbenchService service2)
         {
             Workbench.Instance.AddToCache(type, service1);
 
@@ -111,9 +119,17 @@ namespace Liquid.Base.Tests
 
         private class MockMediaStorage : ILightMediaStorage
         {
-            public string Connection { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public string Connection
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
 
-            public string Container { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public string Container
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
 
             public Task<ILightAttachment> GetAsync(string resourceId, string id)
             {
@@ -153,7 +169,8 @@ namespace Liquid.Base.Tests
                 throw new NotImplementedException();
             }
 
-            public Task<ILightAttachment> AddOrUpdateAttachmentAsync<T>(string entityId, string fileName, Stream attachment)
+            public Task<ILightAttachment> AddOrUpdateAttachmentAsync<T>(string entityId, string fileName,
+                Stream attachment)
             {
                 throw new NotImplementedException();
             }
@@ -199,7 +216,8 @@ namespace Liquid.Base.Tests
                 throw new NotImplementedException();
             }
 
-            public Task<ILightPaging<T>> GetByPageAsync<T>(string token, Expression<Func<T, bool>> filter, int page, int itemsPerPage)
+            public Task<ILightPaging<T>> GetByPageAsync<T>(string token, Expression<Func<T, bool>> filter, int page,
+                int itemsPerPage)
             {
                 throw new NotImplementedException();
             }
@@ -305,7 +323,12 @@ namespace Liquid.Base.Tests
                 throw new NotImplementedException();
             }
 
-            public void Initialize()
+            public void Set<T>(string key, T value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task SetAsync<T>(string key, T value)
             {
                 throw new NotImplementedException();
             }
@@ -330,12 +353,7 @@ namespace Liquid.Base.Tests
                 throw new NotImplementedException();
             }
 
-            public void Set<T>(string key, T value)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task SetAsync<T>(string key, T value)
+            public void Initialize()
             {
                 throw new NotImplementedException();
             }

@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Liquid.Domain\Liquid.Domain.csproj" />
     <ProjectReference Include="..\..\src\Liquid.Runtime\Liquid.Runtime.csproj" />
   </ItemGroup>
 

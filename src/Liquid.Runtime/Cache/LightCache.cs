@@ -1,13 +1,17 @@
-﻿using Liquid.Interfaces;
+﻿using System;
+using Liquid.Interfaces;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace Liquid.Runtime
 {
+    
+
     /// <summary>
     /// Include support of Cache, that processing data included on Configuration file.
     /// </summary>
+    [Obsolete("This class wi'll be removed in the next version.")] 
     public abstract class LightCache : ILightCache
     {
         /// <summary>
@@ -66,41 +70,6 @@ namespace Liquid.Runtime
         /// <returns>Task</returns>
         public abstract Task RemoveAsync(string key);
 
-        /// <summary>
-        /// Convert object to ByteArray
-        /// </summary>
-        /// <typeparam name="T">Type of object</typeparam>
-        /// <param name="obj">object</param>
-        /// <returns>Array of byte</returns>
-        public static byte[] ToByteArray(object obj)
-        {
-            using (var m = new MemoryStream())
-            {
-                var ser = new DataContractSerializer(obj.GetType());
-                ser.WriteObject(m, obj);
-                return m.ToArray();
-            }
-        }
-        /// <summary>
-        /// Convert Array of byte to object
-        /// </summary>
-        /// <typeparam name="T">Type of object</typeparam>
-        /// <param name="data">Array of byte</param>
-        /// <returns>object</returns>
-        public static T FromByteArray<T>(byte[] data)
-        {
-            if (data != null)
-            {
-                using (var m = new MemoryStream(data))
-                {
-                    var ser = new DataContractSerializer(typeof(T));
-                    return (T)ser.ReadObject(m);
-                }
-            }
-            else
-            {
-                return default(T);
-            }
-        }
+       
     }
 }

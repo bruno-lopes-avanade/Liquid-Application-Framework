@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
@@ -73,16 +74,18 @@ namespace Liquid.Activation
             {
                 Logger.Info("Router: " + HttpContext.Request.Path + " \n Response: " + response.ToStringCamelCase());
             }
-
             if (response.NotFoundMessage)
             {
                 return NotFound(response);
             }
-            
-			if (response.BadRequestMessage) return BadRequest(response);
-            
-            if(response.GenericReturnMessage) return StatusCode((int)response.StatusCode, response);
-			
+
+            if (response.BadRequestMessage) return BadRequest(response);
+
+            if (response.GenericReturnMessage) return StatusCode((int)response.StatusCode, response);
+
+            if (response.StatusCode.Equals((int)HttpStatusCode.NoContent))
+                return StatusCode((int)response?.StatusCode);
+
             return Ok(response);            
         }
 

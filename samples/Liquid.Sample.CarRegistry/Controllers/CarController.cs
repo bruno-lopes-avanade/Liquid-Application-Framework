@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Liquid.OnAzure;
 
 namespace Liquid.Sample.CarRegistry
 {
@@ -97,6 +98,7 @@ namespace Liquid.Sample.CarRegistry
 #pragma warning restore S4144
         {
             var data = await Factory<CarService>().SaveAsync(viewModel);
+            data.StatusCode = 204;
             return Result(data);
         }
     }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Liquid.Base.Interfaces.Polly;
 using Liquid.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 
 namespace Liquid
@@ -162,7 +163,7 @@ namespace Liquid
 
             _singletonCache.Add(type, service);
         }
-
+        
         public void UseMediaStorage<T>()
             where T : ILightMediaStorage, new()
         {
@@ -198,6 +199,7 @@ namespace Liquid
         {
             AddToCache(WorkbenchServiceType.Cache, new T());
         }
+
 
         public void UseLogger<T>()
             where T : ILightLogger, new()

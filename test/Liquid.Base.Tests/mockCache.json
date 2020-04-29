@@ -1,0 +1,16 @@
+{
+  "Cache": [
+    {
+      "Method": "Get",
+      "Input": {
+        "Car": { "id": "1" }
+      },
+      "Output": {
+        "Car": {
+          "id": "1",
+          "Name": "Teste"
+        }
+      }
+    }
+  ]
+}

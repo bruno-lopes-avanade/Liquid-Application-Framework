@@ -2,7 +2,9 @@
 using Liquid.Domain;
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Liquid.Sample.CarRegistry
@@ -20,8 +22,14 @@ namespace Liquid.Sample.CarRegistry
         public async Task<DomainResponse> GetAsync(string id)
         {
             Telemetry.TrackEvent("Get Record");
-            var records = await Repository.GetByIdAsync<Car>(id);
-            return Response(records);
+            var record = await Cache.GetAsync<Car>(id).ConfigureAwait(true);
+            if (string.IsNullOrEmpty(record?.id))
+            {
+                record = await Repository.GetByIdAsync<Car>(id);
+                if(!string.IsNullOrEmpty(record?.id))
+                    await Cache.SetAsync(record.id, record).ConfigureAwait(false);
+            }
+            return Response(record);
         }
 
         /// <summary>
@@ -31,7 +39,11 @@ namespace Liquid.Sample.CarRegistry
         public async Task<DomainResponse> GetAllAsync()
         {
             Telemetry.TrackEvent("GetAll Records");
-            var records = await Repository.GetAsync<Car>(x => true);
+            var records = await Repository.GetAsync<Car>(x => true).ConfigureAwait(true);
+            records.ToList().ForEach(async c =>
+            {
+                await Cache.SetAsync(c.id, c).ConfigureAwait(false);
+            });
             return Response(records);
         }
 
@@ -45,7 +57,8 @@ namespace Liquid.Sample.CarRegistry
             var model = new Car();
             model.MapFrom(viewModel);
             Telemetry.TrackEvent("Save Record");
-            var records = await Repository.AddOrUpdateAsync(model);
+            var records = await Repository.AddOrUpdateAsync(model).ConfigureAwait(true);
+            await Cache.SetAsync(records.id, model).ConfigureAwait(false);
             return Response(records);
         }
 
@@ -59,17 +72,18 @@ namespace Liquid.Sample.CarRegistry
             var car = CarFactory.Create(viewModel);
             Telemetry.TrackEvent("Save Record");
 
-            var query = Repository.GetAsync<Car>(x => x.Id.ToString() == viewModel.Id).Result;
+            var query = Repository.GetAsync<Car>(x => x.id == viewModel.Id).Result;
 
             var carReturn = query.AsEnumerable().FirstOrDefault();
 
             if (carReturn != null)
             {
-                car.Id = carReturn.Id;
+                car.id = carReturn.id;
             }
 
-            var records = await Repository.AddOrUpdateAsync(car);
-            return Response(records);
+            var records = await Repository.AddOrUpdateAsync(car).ConfigureAwait(true);
+            await Cache.SetAsync(car.id, car).ConfigureAwait(false);
+            return Response(new DomainResponse{ ModelData = records, StatusCode = (int)HttpStatusCode.NoContent });
         }
 
         /// <summary>
@@ -80,8 +94,9 @@ namespace Liquid.Sample.CarRegistry
         public async Task<DomainResponse> DeleteAsync(Guid id)
         {
             Telemetry.TrackEvent("Delete Record");
-            await Repository.DeleteAsync<Car>(id.ToString());
-            return Response(new DomainResponse());
+            await Repository.DeleteAsync<Car>(id.ToString()).ConfigureAwait(true);
+            await Cache.RemoveAsync(id.ToString()).ConfigureAwait(false);
+            return Response(new DomainResponse{StatusCode = (int)HttpStatusCode.NoContent});
         }
     }
 }

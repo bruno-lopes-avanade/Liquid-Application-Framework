@@ -1,26 +1,18 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 using Liquid.Repository;
-using System;
 
-namespace Liquid.Sample.CarRegistry
+namespace Liquid.OnAzure.Tests
 {
-    /// <summary>
-    /// Describes a Car 
-    /// </summary>
-    public class Car : LightModel<Car>
+    public class EntityUnderTeste : LightModel<EntityUnderTeste>
     {
         /// <summary>
-        /// Identifies the car
+        /// Identifies entity car
         /// </summary>
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Id of the car in the legacy system
-        /// </summary>
-        public string IdLegacy { get; set; }
-
-        /// <summary>
-        /// Describes the car object
+        /// Describes the entity object
         /// </summary>
         public string Description { get; set; }
 

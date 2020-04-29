@@ -4,45 +4,71 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Redis;
 using System;
 using System.Threading.Tasks;
+using Liquid.Interfaces;
+using Liquid.Runtime.Miscellaneous;
 
 namespace Liquid.OnAzure
 {
     /// <summary>
     ///  Include support of AzureRedis, that processing data included on Configuration file.
     /// </summary>
-    public class AzureRedis : LightCache
+    [Obsolete("Prefer to use the standard Microsoft.Extensions.Caching.Redis.RedisCache over Liquid.OnAzure.AzureRedis. \n This class wi'll be removed in the next version.")]
+    public class AzureRedis : ILightCache
     {
-        private AzureRedisConfiguration config;
-        private RedisCache _redisClient = null;
+        private AzureRedisConfiguration _config;
+        private IDistributedCache _redisClient = null;
         private DistributedCacheEntryOptions _options = null;
+
+        public AzureRedis(AzureRedisConfiguration configuration)
+        {
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+            Initialize(configuration);
+            _config = configuration;
+        }
+        public AzureRedis()
+        {
+        }
         /// <summary>
         /// Initialize support of Cache and read file config
         /// </summary>
-        public override void Initialize()
+        public void Initialize()
         {
-            config = LightConfigurator.Config<AzureRedisConfiguration>("AzureRedis");
+            _config = LightConfigurator.Config<AzureRedisConfiguration>("AzureRedis");
+            Initialize(_config);
+        }
+
+        /// <summary>
+        /// Initializes the class based on the provided configuration.
+        /// </summary>
+        /// <param name="configuration">The configuiration for this class.</param>
+        private void Initialize(AzureRedisConfiguration configuration)
+        {
             _redisClient = new RedisCache(new RedisCacheOptions()
             {
-                Configuration = config.Configuration,
-                InstanceName = config.InstanceName
+                Configuration = configuration.Configuration,
+                InstanceName = configuration.InstanceName
             });
 
             _options = new DistributedCacheEntryOptions()
             {
-                SlidingExpiration = TimeSpan.FromSeconds(config.SlidingExpirationSeconds),
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(config.AbsoluteExpirationRelativeToNowSeconds)
+                SlidingExpiration = TimeSpan.FromSeconds(configuration.SlidingExpirationSeconds),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(configuration.AbsoluteExpirationRelativeToNowSeconds)
             };
         }
+
         /// <summary>
         /// Get Key on the Azure Redis server cache
         /// </summary>
         /// <typeparam name="T">Type of object</typeparam>
         /// <param name="key">Key of object</param>
         /// <returns>object</returns>
-        public override T Get<T>(string key)
+        public T Get<T>(string key)
         {
             var data = _redisClient.Get(key);
-            return FromByteArray<T>(data);
+            return Utils.FromByteArray<T>(data);
         }
         /// <summary>
         /// Get Key Async on the Azure Redis server cache
@@ -50,16 +76,16 @@ namespace Liquid.OnAzure
         /// <typeparam name="T">Type of object</typeparam>
         /// <param name="key">Key of object</param>
         /// <returns>Task with object</returns>
-        public override async Task<T> GetAsync<T>(string key)
+        public async Task<T> GetAsync<T>(string key)
         {
             var data = await _redisClient.GetAsync(key);
-            return FromByteArray<T>(data);
+            return Utils.FromByteArray<T>(data);
         }
         /// <summary>
         /// Refresh key get on the Azure Redis server cache
         /// </summary>
         /// <param name="key">Key of object</param>
-        public override void Refresh(string key)
+        public void Refresh(string key)
         {
             _redisClient.Refresh(key);
         }
@@ -68,7 +94,7 @@ namespace Liquid.OnAzure
         /// </summary>
         /// <param name="key">Key of object</param>
         /// <returns>Task</returns>
-        public override async Task RefreshAsync(string key)
+        public async Task RefreshAsync(string key)
         {
             await _redisClient.RefreshAsync(key);
         }
@@ -76,7 +102,7 @@ namespace Liquid.OnAzure
         ///  Remove key on the Azure Redis server cache
         /// </summary>
         /// <param name="key">Key of object</param>
-        public override void Remove(string key)
+        public void Remove(string key)
         {
             _redisClient.Remove(key);
         }
@@ -85,7 +111,7 @@ namespace Liquid.OnAzure
         /// </summary>
         /// <param name="key">Key of object</param>
         /// <returns>Task</returns>
-        public override Task RemoveAsync(string key)
+        public Task RemoveAsync(string key)
         {
             return _redisClient.RemoveAsync(key);
         }
@@ -95,9 +121,9 @@ namespace Liquid.OnAzure
         /// <typeparam name="T">Type of object</typeparam>
         /// <param name="key">Key of object</param>
         /// <returns>object</returns>
-        public override void Set<T>(string key, T value)
+        public void Set<T>(string key, T value)
         {
-            _redisClient.Set(key, ToByteArray(value), _options);
+            _redisClient.Set(key, Utils.ToByteArray(value), _options);
         }
         /// <summary>
         /// Set Key and value Async on the Azure Redis server cache
@@ -105,9 +131,10 @@ namespace Liquid.OnAzure
         /// <typeparam name="T">Type of object</typeparam>
         /// <param name="key">Key of object</param>
         /// <returns>Task with object</returns>
-        public override async Task SetAsync<T>(string key, T value)
+        public async Task SetAsync<T>(string key, T value)
         {
-            await _redisClient.SetAsync(key, ToByteArray(value), _options);
+            await _redisClient.SetAsync(key, Utils.ToByteArray(value), _options);
         }
+
     }
 }

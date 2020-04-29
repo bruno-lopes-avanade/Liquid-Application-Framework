@@ -18,6 +18,18 @@ namespace Liquid.OnAzure
     /// </summary>
     public class ServiceBus : LightWorker, IWorkbenchService
     {
+        public ServiceBusConfiguration _serviceBusConfiguration { get; set; }
+
+        public ServiceBus(ServiceBusConfiguration serviceBusConfiguration)
+        {
+            
+        }
+
+        public ServiceBus()
+        {
+            
+        }
+
         /// <summary>
         /// Implementation of the start process queue and process topic. It must be called  parent before start processes.
         /// </summary>
@@ -47,7 +59,6 @@ namespace Liquid.OnAzure
             {
                 config = LightConfigurator.Config<ServiceBusConfiguration>($"{nameof(ServiceBus)}_{connectionKey}");
             }
-
             return config.ConnectionString;
         }
 
@@ -90,7 +101,8 @@ namespace Liquid.OnAzure
                             try
                             {
                                 InvokeProcess(method, message.Body);
-                                await queueReceiver.CompleteAsync(message.SystemProperties.LockToken);
+                                if(queueReceiver.ReceiveMode == ReceiveMode.PeekLock)
+                                    await queueReceiver.CompleteAsync(message.SystemProperties.LockToken);
                             }
                             catch (Exception exRegister)
                             {

@@ -1,10 +1,13 @@
-﻿using Liquid.Middleware;
+﻿using System;
+using Liquid.Middleware;
 using Liquid.OnAzure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace Liquid.Sample.CarRegistry
 {
@@ -35,6 +38,12 @@ namespace Liquid.Sample.CarRegistry
         {
             //Add the configuration on WorkBench
             services.AddWorkBench(Configuration);
+
+            //services.AddDistributedRedisCache(options =>
+            //{
+            //    options.InstanceName = Configuration.GetSection( "Redis:Name").Value;
+            //    options.Configuration = Configuration.GetSection("Redis:Host").Value;
+            //});
             services.AddMvc();
         }
 
@@ -52,9 +61,9 @@ namespace Liquid.Sample.CarRegistry
             WorkBench.UseTelemetry<AppInsights>();
             WorkBench.UseRepository<CosmosDB>();
             WorkBench.UseMessageBus<ServiceBus>();
-
+            WorkBench.UseCache<AzureRedis>();
             app.UseWorkBench();
-
+            
             app.UseMvc();
         }
     }
