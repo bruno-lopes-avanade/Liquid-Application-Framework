@@ -21,16 +21,39 @@ namespace Liquid.OnWindowsClient
         private MemoryCacheConfiguration config;
         private CacheItemPolicy options = null;
 
+        public MemoryCache(MemoryCacheConfiguration configuration)
+        {
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+            Initialize(configuration);
+            config = configuration;
+        }
+        public MemoryCache()
+        {
+        }
         /// <summary>
         /// Initialize support of Cache and read file config
         /// </summary>
-        public  void Initialize()
+        /// <summary>
+        /// Initialize support of Cache and read file config
+        /// </summary>
+        public void Initialize()
         {
             config = LightConfigurator.Config<MemoryCacheConfiguration>("MemoryCache");
+            Initialize(config);
+        }
+        /// <summary>
+        /// Initializes the class based on the provided configuration.
+        /// </summary>
+        /// <param name="configuration">The configuiration for this class.</param>
+        private void Initialize(MemoryCacheConfiguration configuration)
+        {
             options = new CacheItemPolicy()
             {
-                SlidingExpiration = TimeSpan.FromSeconds(config.SlidingExpirationSeconds),
-                AbsoluteExpiration = DateTimeOffset.FromUnixTimeSeconds(config.AbsoluteExpirationRelativeToNowSeconds)
+                SlidingExpiration = TimeSpan.FromSeconds(configuration.SlidingExpirationSeconds),
+                AbsoluteExpiration = DateTimeOffset.FromUnixTimeSeconds(configuration.AbsoluteExpirationRelativeToNowSeconds)
             };
         }
         /// <summary>
